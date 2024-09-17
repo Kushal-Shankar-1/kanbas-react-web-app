@@ -338,7 +338,7 @@ export default function Lab1() {
       </p>
       <p>
         Visit our{' '}
-        <a id="wd-github" href="https://github.com/your-repo">
+        <a id="wd-github" href="https://github.com/Kushal-Shankar-1/kanbas-react-web-app">
           GitHub Repository
         </a>
         .
