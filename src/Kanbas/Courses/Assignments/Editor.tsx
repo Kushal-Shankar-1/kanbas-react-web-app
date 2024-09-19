@@ -1,5 +1,4 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 
 export default function AssignmentEditor() {
   const { aid } = useParams<{ aid: string }>();
@@ -7,12 +6,13 @@ export default function AssignmentEditor() {
   return (
     <div id="wd-assignments-editor">
       <h2>Assignment Editor - {aid}</h2>
+      
       {/* Assignment Name */}
       <label htmlFor="wd-name">Assignment Name</label>
       <br />
       <input id="wd-name" value="A1 - ENV + HTML" />
-      <br />
-      <br />
+      <br /><br />
+      
       {/* Description */}
       <label htmlFor="wd-description">Description</label>
       <br />
@@ -20,6 +20,7 @@ export default function AssignmentEditor() {
         The assignment is available online. Submit a link to the landing page of your project.
       </textarea>
       <br />
+      
       {/* Form Table */}
       <table>
         <tbody>
@@ -32,6 +33,7 @@ export default function AssignmentEditor() {
               <input id="wd-points" type="number" value={100} />
             </td>
           </tr>
+          
           {/* Assignment Group */}
           <tr>
             <td align="right" valign="top">
@@ -46,6 +48,7 @@ export default function AssignmentEditor() {
               </select>
             </td>
           </tr>
+          
           {/* Display Grade as */}
           <tr>
             <td align="right" valign="top">
@@ -59,6 +62,7 @@ export default function AssignmentEditor() {
               </select>
             </td>
           </tr>
+          
           {/* Submission Type */}
           <tr>
             <td align="right" valign="top">
@@ -72,6 +76,7 @@ export default function AssignmentEditor() {
               </select>
             </td>
           </tr>
+          
           {/* Online Entry Options */}
           <tr>
             <td align="right" valign="top">
@@ -79,21 +84,18 @@ export default function AssignmentEditor() {
             </td>
             <td>
               <input type="checkbox" id="wd-text-entry" />{' '}
-              <label htmlFor="wd-text-entry">Text Entry</label>
-              <br />
+              <label htmlFor="wd-text-entry">Text Entry</label><br />
               <input type="checkbox" id="wd-website-url" />{' '}
-              <label htmlFor="wd-website-url">Website URL</label>
-              <br />
+              <label htmlFor="wd-website-url">Website URL</label><br />
               <input type="checkbox" id="wd-media-recordings" />{' '}
-              <label htmlFor="wd-media-recordings">Media Recordings</label>
-              <br />
+              <label htmlFor="wd-media-recordings">Media Recordings</label><br />
               <input type="checkbox" id="wd-student-annotation" />{' '}
-              <label htmlFor="wd-student-annotation">Student Annotation</label>
-              <br />
+              <label htmlFor="wd-student-annotation">Student Annotation</label><br />
               <input type="checkbox" id="wd-file-upload" />{' '}
               <label htmlFor="wd-file-upload">File Upload</label>
             </td>
           </tr>
+          
           {/* Assign To */}
           <tr>
             <td align="right" valign="top">
@@ -103,6 +105,7 @@ export default function AssignmentEditor() {
               <input id="wd-assign-to" value="Everyone" />
             </td>
           </tr>
+          
           {/* Due Date */}
           <tr>
             <td align="right" valign="top">
@@ -112,6 +115,7 @@ export default function AssignmentEditor() {
               <input id="wd-due-date" type="date" value="2023-12-31" />
             </td>
           </tr>
+          
           {/* Available From */}
           <tr>
             <td align="right" valign="top">
@@ -121,6 +125,7 @@ export default function AssignmentEditor() {
               <input id="wd-available-from" type="date" value="2023-11-01" />
             </td>
           </tr>
+          
           {/* Available Until */}
           <tr>
             <td align="right" valign="top">
@@ -132,6 +137,7 @@ export default function AssignmentEditor() {
           </tr>
         </tbody>
       </table>
+      
       {/* Save and Cancel Buttons */}
       <br />
       <button>Save</button> <button>Cancel</button>

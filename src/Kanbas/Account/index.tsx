@@ -1,9 +1,8 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import AccountNavigation from './Navigation';
-import Signin from './Signin';
-import Signup from './Signup';
-import Profile from './Profile';
+import { Routes, Route, Navigate } from "react-router";
+import AccountNavigation from "./Navigation";
+import Profile from "./Profile";
+import Signin from "./Signin";
+import Signup from "./Signup";
 
 export default function Account() {
   return (
@@ -11,15 +10,17 @@ export default function Account() {
       <table>
         <tbody>
           <tr>
+            {/* Left column: Account navigation sidebar. Going forward put all the contents going into the left column here. */}
             <td valign="top">
               <AccountNavigation />
             </td>
+            {/* Right column: Account routes. Place where routes go. */}
             <td valign="top">
               <Routes>
                 <Route path="/" element={<Navigate to="/Kanbas/Account/Signin" />} />
                 <Route path="/Signin" element={<Signin />} />
-                <Route path="/Signup" element={<Signup />} />
                 <Route path="/Profile" element={<Profile />} />
+                <Route path="/Signup" element={<Signup />} />
               </Routes>
             </td>
           </tr>

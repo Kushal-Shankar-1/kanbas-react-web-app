@@ -1,5 +1,4 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 export default function Signin() {
   return (
@@ -9,11 +8,8 @@ export default function Signin() {
       <input id="wd-password" placeholder="password" type="password" /> <br />
       <Link id="wd-signin-btn" to="/Kanbas/Dashboard">
         Sign in
-      </Link>
-      <br />
-      <Link id="wd-signup-link" to="/Kanbas/Account/Signup">
-        Sign up
-      </Link>
+      </Link> <br />
+      <Link id="wd-signup-link" to="/Kanbas/Account/Signup">Sign up</Link>
     </div>
   );
 }

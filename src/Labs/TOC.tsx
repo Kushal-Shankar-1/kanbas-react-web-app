@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
 export default function TOC() {
   return (
@@ -17,7 +17,12 @@ export default function TOC() {
         <Link to="/Labs/Lab3">Lab 3</Link>
       </li>
       <li>
-        <Link to="/Kanbas">Kanbas</Link>
+        <a href="/Kanbas">Kanbas</a>
+      </li>
+      <li>
+        <a id="wd-github" href="https://github.com/Kushal-Shankar-1/kanbas-react-web-app">
+          GitHub Repository
+        </a>
       </li>
     </ul>
   );

@@ -1,10 +1,9 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import CoursesNavigation from './Navigation';
-import Home from './Home';
-import Modules from './Modules';
-import Assignments from './Assignments';
-import AssignmentEditor from './Assignments/Editor';
+import Assignments from "./Assignments";
+import AssignmentEditor from "./Assignments/Editor";
+import Home from "./Home";
+import Modules from "./Modules";
+import CoursesNavigation from "./Navigation";
+import { Navigate, Route, Routes } from "react-router";
 
 export default function Courses() {
   return (
@@ -14,9 +13,11 @@ export default function Courses() {
       <table>
         <tbody>
           <tr>
+            {/* Left column: Courses Navigation Sidebar */}
             <td valign="top">
               <CoursesNavigation />
             </td>
+            {/* Right column: Routes */}
             <td valign="top">
               <Routes>
                 <Route path="/" element={<Navigate to="Home" />} />
@@ -24,8 +25,6 @@ export default function Courses() {
                 <Route path="Modules" element={<Modules />} />
                 <Route path="Assignments" element={<Assignments />} />
                 <Route path="Assignments/:aid" element={<AssignmentEditor />} />
-                <Route path="People" element={<h3>People</h3>} />
-                {/* Add additional routes as needed */}
               </Routes>
             </td>
           </tr>
