@@ -9,7 +9,7 @@ export default function Labs() {
   return (
     <div>
       {/* Your Full Name */}
-      <h1>Kushal Shankar</h1>
+      <h1>Kushal Shankar || Section 1</h1>
       
       {/* Table of Contents */}
       <TOC />

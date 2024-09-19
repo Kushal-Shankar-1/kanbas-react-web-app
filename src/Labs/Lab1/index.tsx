@@ -287,6 +287,24 @@ export default function Lab1() {
         <label htmlFor="wd-text-fields-dob"> Date of birth: </label>
         <input type="date" id="wd-text-fields-dob" value="2000-01-21"/><br/>
       </div>
+      <div id="wd-anchors">
+        <h4>Anchor Tag</h4>
+        Please
+        <a id="wd-lipsum" href="https://www.lipsum.com" target="_blank" rel="noreferrer">
+        click here
+        </a>
+        to get dummy text
+        <br />
+  
+        Check out another page within this website:
+        <a href="/Kanbas" target="_self">Go to Kanbas</a>
+        <br />
+
+        View the source code repository on GitHub:
+        <a id="wd-github" href="https://github.com/Kushal-Shankar-1/kanbas-react-web-app" target="_blank" rel="noreferrer">
+        GitHub Repository
+        </a>
+      </div>
     </div>
   );
 }
