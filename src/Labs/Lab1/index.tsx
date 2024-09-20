@@ -296,10 +296,6 @@ export default function Lab1() {
         to get dummy text
         <br />
   
-        Check out another page within this website:
-        <a href="/Kanbas" target="_self">Go to Kanbas</a>
-        <br />
-
         View the source code repository on GitHub:
         <a id="wd-github" href="https://github.com/Kushal-Shankar-1/kanbas-react-web-app" target="_blank" rel="noreferrer">
         GitHub Repository
