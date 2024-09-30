@@ -1,0 +1,57 @@
+body { margin: 0; padding: 0; }
+body * { font-family: Arial, Helvetica, sans-serif; }
+
+@media (min-width: 768px) {
+  #wd-kanbas .wd-main-content-offset {
+    padding-left: 140px !important;
+  }
+}
+
+.btn-secondary {
+  --bs-btn-color: #000 !important;
+  --bs-btn-bg: #c7cdd1 !important;
+  --bs-btn-border-color: #c7cdd1 !important;
+  --bs-btn-hover-color: #fff !important;
+}
+
+.bg-secondary {
+  --bs-secondary-rgb: 199, 205, 209;
+}
+
+.list-group-item {
+  --bs-list-group-border-color: gray;
+}
+
+.wd-lesson {
+  border-left: 3px solid green !important;
+}
+
+/* Style for left border of the assignment list */
+#wd-assignments .list-group-item {
+    border-left: 4px solid green !important;
+  }
+  
+  /* Styling for the search input */
+  #wd-assignments-controls .input-group-text {
+    background-color: white !important;
+    border: 1px solid #ccc;
+  }
+  
+  #wd-assignments-controls .form-control {
+    border: 1px solid #ccc;
+  }
+  
+  /* Set margin and padding for consistency */
+  #wd-assignments .list-group-item {
+    padding: 15px;
+  }
+  
+  #wd-assignments h5 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  
+  #wd-assignments small {
+    font-size: 0.875rem;
+  }
+  
