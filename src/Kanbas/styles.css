@@ -55,3 +55,15 @@ body * { font-family: Arial, Helvetica, sans-serif; }
     font-size: 0.875rem;
   }
   
+  .list-group.wd > .list-group-item.active {
+    color: black;
+    background-color: white;
+    border-left: 3px solid black !important;
+  }
+
+  #wd-kanbas-navigation > .list-group-item.active {
+    color: black;
+    background-color: white;
+    border-left: 3px solid black !important;
+  }
+  
