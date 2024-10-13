@@ -3,9 +3,13 @@ import Account from "./Account";
 import Dashboard from "./Dashboard";
 import KanbasNavigation from "./Navigation";
 import Courses from "./Courses";
+import { courses } from "./Database";
 import "./styles.css";
 
 export default function Kanbas() {
+  // Log courses to verify the data import
+  console.log("Courses from Database:", courses);
+
   return (
     <div id="wd-kanbas" className="d-flex">
       {/* Left column: Kanbas Navigation Sidebar */}
