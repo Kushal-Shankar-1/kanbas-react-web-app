@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { assignments } from '../../Database'; // Import assignments from the database
+import { assignments } from '../../Database';
 
 export default function AssignmentEditor() {
   const { cid, aid } = useParams<{ cid: string; aid: string }>(); // Extract course and assignment ID
@@ -148,7 +148,9 @@ export default function AssignmentEditor() {
             <Link to={`/Kanbas/Courses/${cid}/Assignments`} className="btn btn-secondary me-2">
               Cancel
             </Link>
-            <button className="btn btn-danger">Save</button>
+            <Link to={`/Kanbas/Courses/${cid}/Assignments`} className="btn btn-danger">
+              Save
+            </Link>
           </div>
         </div>
       </div>

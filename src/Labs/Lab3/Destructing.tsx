@@ -30,21 +30,6 @@ export default function Destructing() {
       second = {second} <br />
       third = {third} <br />
       <hr />
-
-      <h3>Additional Output</h3>
-      <h4>Object Destructing Example</h4>
-      const &#123; name, age &#125; = &#123; name: "John", age: 25 &#125;<br />
-      <br />
-      name = {name} <br />
-      age = {age} <br />
-      <br />
-
-      <h4>Array Destructing Example</h4>
-      const [first, second, third] = ["one", "two", "three"]<br />
-      <br />
-      first = {first} <br />
-      second = {second} <br />
-      third = {third} <hr />
     </div>
   );
 }
