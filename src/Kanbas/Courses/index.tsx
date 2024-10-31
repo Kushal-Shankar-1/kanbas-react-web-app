@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes, useParams, useLocation } from "react-router";
 import { FaAlignJustify } from "react-icons/fa";
-import { courses } from "../Database";
 import CoursesNavigation from "./Navigation";
 import Home from "./Home";
 import Modules from "./Modules";
@@ -22,7 +21,7 @@ interface Course {
   author?: string;
 }
 
-export default function Courses() {
+export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams<{ cid: string }>(); // Retrieve course ID from URL
   const course = courses.find((c) => c._id === cid) as Course | undefined; // Find matching course
   const { pathname } = useLocation(); // Get the current path

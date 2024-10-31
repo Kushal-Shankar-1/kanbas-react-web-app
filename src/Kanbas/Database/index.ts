@@ -22,6 +22,7 @@ export type Module = {
   description: string;
   course: string;
   lessons?: Lesson[];
+  editing?: boolean;
 };
 
 export type Lesson = {

@@ -31,8 +31,10 @@ import Spreading from "./Spreading";
 import Destructing from "./Destructing";
 import FunctionDestructing from "./FunctionDestructing";
 import DestructingImports from "./DestructingImports";
+import { useSelector } from "react-redux";
 
 export default function Lab3() {
+  const { todos } = useSelector((state: any) => state.todosReducer);
   console.log("Hello World!");
   
   return (
@@ -81,6 +83,14 @@ export default function Lab3() {
       </Highlight>
 
       <PathParameters />
+      <h4>Todos from Redux</h4>
+      <ul className="list-group">
+        {todos.map((todo: any) => (
+          <li className="list-group-item" key={todo.id}>
+            {todo.title}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
