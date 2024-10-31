@@ -1,9 +1,11 @@
 import { FaPlus, FaSearch } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function AssignmentsControls() {
   const navigate = useNavigate();
-  const { cid } = useParams<{ cid: string }>(); // Get course ID from URL params
+  const { cid } = useParams<{ cid: string }>();
+  const { currentUser } = useSelector((state: any) => state.accountReducer); // Get current user from Redux store
 
   const handleAddAssignment = () => {
     navigate(`/Kanbas/Courses/${cid}/Assignments/new`);
@@ -25,20 +27,22 @@ export default function AssignmentsControls() {
 
       {/* Right-side buttons */}
       <div className="d-flex">
-        {/* Group Button */}
+        {/* Show Group button for all users */}
         <button className="btn btn-secondary me-2 d-flex align-items-center">
           <FaPlus className="me-1" />
           Group
         </button>
 
-        {/* Assignment Button */}
-        <button
-          onClick={handleAddAssignment} // Trigger navigation on click
-          className="btn btn-danger d-flex align-items-center"
-        >
-          <FaPlus className="me-1" />
-          Assignment
-        </button>
+        {/* Show Assignment button only for FACULTY users */}
+        {currentUser?.role === "FACULTY" && (
+          <button
+            onClick={handleAddAssignment}
+            className="btn btn-danger d-flex align-items-center"
+          >
+            <FaPlus className="me-1" />
+            Assignment
+          </button>
+        )}
       </div>
     </div>
   );

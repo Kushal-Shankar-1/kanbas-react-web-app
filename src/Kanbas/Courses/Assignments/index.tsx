@@ -10,6 +10,7 @@ import { Assignment } from './reducer';
 export default function Assignments() {
   const { cid } = useParams<{ cid: string }>();
   const assignments = useSelector((state: any) => state.assignmentsReducer.assignments);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
   const dispatch = useDispatch();
   const courseAssignments = assignments.filter((a: Assignment) => a.course === cid);
 
@@ -21,8 +22,8 @@ export default function Assignments() {
 
   return (
     <div id="wd-assignments" className="p-3">
-      {/* Assignment Controls */}
-      <AssignmentsControls />
+      {/* Display AssignmentsControls only for FACULTY users */}
+      {currentUser?.role === "FACULTY" && <AssignmentsControls />}
       <br /><br />
 
       <ul id="wd-assignments-title" className="list-group rounded-0">
@@ -54,22 +55,24 @@ export default function Assignments() {
                   </div>
                 </div>
 
-                {/* Control buttons with improved spacing */}
-                <div className="d-flex align-items-center">
-                  <Link
-                    to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
-                    className="btn btn-sm btn-warning me-3"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(assignment._id)}
-                    className="btn btn-sm btn-danger me-3"
-                  >
-                    Delete
-                  </button>
-                  <LessonControlButtons />
-                </div>
+                {/* Show edit/delete buttons only for FACULTY users */}
+                {currentUser?.role === "FACULTY" && (
+                  <div className="d-flex align-items-center">
+                    <Link
+                      to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
+                      className="btn btn-sm btn-warning me-3"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(assignment._id)}
+                      className="btn btn-sm btn-danger me-3"
+                    >
+                      Delete
+                    </button>
+                    <LessonControlButtons />
+                  </div>
+                )}
               </li>
             ))}
           </ul>
