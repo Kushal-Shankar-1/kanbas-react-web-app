@@ -2,36 +2,71 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "./reducer";
+import * as client from "./client";
 
 export default function Profile() {
   const [profile, setProfile] = useState<any>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentUser } = useSelector((state: any) => state.accountReducer);
 
-  // Fetch the current user's profile or redirect if not signed in
-  const fetchProfile = () => {
-    if (!currentUser) {
-      navigate("/Kanbas/Account/Signin");
-    } else {
-      setProfile(currentUser);
+  // Fetch profile from the server
+  const fetchProfile = async () => {
+    try {
+      const fetchedProfile = await client.profile();
+      if (!fetchedProfile) {
+        navigate("/Kanbas/Account/Signin");
+      } else {
+        setProfile(fetchedProfile);
+        dispatch(setCurrentUser(fetchedProfile));
+      }
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+      setError("Failed to fetch profile. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Sign out function to clear the user and navigate to Signin
-  const signout = () => {
-    dispatch(setCurrentUser(null));
-    navigate("/Kanbas/Account/Signin");
+  // Update profile on the server
+  const updateProfile = async () => {
+    try {
+      const updatedProfile = await client.updateUser(profile);
+      setProfile(updatedProfile);
+      dispatch(setCurrentUser(updatedProfile));
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      setError("Failed to update profile. Please try again.");
+    }
+  };
+
+  // Sign out and clear the current session
+  const signout = async () => {
+    try {
+      await client.signout();
+      dispatch(setCurrentUser(null));
+      navigate("/Kanbas/Account/Signin");
+    } catch (err) {
+      console.error("Error signing out:", err);
+      setError("Failed to sign out. Please try again.");
+    }
   };
 
   useEffect(() => {
     fetchProfile();
   }, []);
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div id="wd-profile-screen" className="container mt-5" style={{ maxWidth: "600px" }}>
       <h3 className="text-center mb-4">Profile</h3>
-      
+      {error && <div className="alert alert-danger">{error}</div>}
       {profile && (
         <>
           <div className="mb-3">
@@ -111,6 +146,14 @@ export default function Profile() {
               <option value="STUDENT">Student</option>
             </select>
           </div>
+
+          <button
+            onClick={updateProfile}
+            className="btn btn-primary w-100 mb-2"
+            id="wd-update-btn"
+          >
+            Update
+          </button>
 
           <button
             onClick={signout}

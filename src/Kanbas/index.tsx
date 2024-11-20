@@ -1,18 +1,18 @@
 // src/Kanbas/index.tsx
-import { Provider } from "react-redux";
-import store from "./store";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { Routes, Route, Navigate } from "react-router";
 import Account from "./Account";
 import Dashboard from "./Dashboard";
 import KanbasNavigation from "./Navigation";
 import Courses from "./Courses";
 import ProtectedRoute from "./Account/ProtectedRoute";
-import * as db from "./Database";
-import { useState } from "react";
-import "./styles.css";
+import Session from "./Account/Session";
+import * as userClient from "./Account/client";
+import * as courseClient from "./Courses/client";
 
 export default function Kanbas() {
-  const [courses, setCourses] = useState<any[]>(db.courses);
+  const [courses, setCourses] = useState<any[]>([]);
   const [course, setCourse] = useState<any>({
     _id: "0",
     name: "New Course",
@@ -23,41 +23,77 @@ export default function Kanbas() {
     description: "New Description",
   });
 
-  const addNewCourse = () => {
-    const newCourse = { ...course, _id: new Date().getTime().toString() };
-    setCourses((prevCourses) => [...prevCourses, newCourse]);
-    setCourse({
-      _id: "0",
-      name: "New Course",
-      number: "New Number",
-      startDate: "2023-09-10",
-      endDate: "2023-12-15",
-      image: "/images/reactjs.png",
-      description: "New Description",
-    }); // Reset course state after adding
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+
+  const fetchCourses = async () => {
+    try {
+      if (currentUser) {
+        let coursesData = [];
+        if (currentUser.role === "FACULTY") {
+          coursesData = await courseClient.fetchAllCourses();
+        } else {
+          coursesData = await userClient.findMyCourses();
+        }
+        setCourses(coursesData);
+      } else {
+        setCourses([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+    }
   };
 
-  const updateCourse = () => {
-    setCourses((prevCourses) =>
-      prevCourses.map((c) => (c._id === course._id ? course : c))
-    );
-    setCourse({
-      _id: "0",
-      name: "New Course",
-      number: "New Number",
-      startDate: "2023-09-10",
-      endDate: "2023-12-15",
-      image: "/images/reactjs.png",
-      description: "New Description",
-    }); // Reset course state after updating
+  useEffect(() => {
+    fetchCourses();
+  }, [currentUser]);
+
+  const addNewCourse = async () => {
+    try {
+      const newCourse = await userClient.createCourse(course);
+      setCourses([...courses, newCourse]);
+      setCourse({
+        _id: "0",
+        name: "New Course",
+        number: "New Number",
+        startDate: "2023-09-10",
+        endDate: "2023-12-15",
+        image: "/images/reactjs.png",
+        description: "New Description",
+      });
+    } catch (error) {
+      console.error("Failed to add course:", error);
+    }
   };
 
-  const deleteCourse = (courseId: string) => {
-    setCourses((prevCourses) => prevCourses.filter((c) => c._id !== courseId));
+  const updateCourse = async () => {
+    try {
+      await courseClient.updateCourse(course);
+      setCourses(courses.map((c) => (c._id === course._id ? course : c)));
+      setCourse({
+        _id: "0",
+        name: "New Course",
+        number: "New Number",
+        startDate: "2023-09-10",
+        endDate: "2023-12-15",
+        image: "/images/reactjs.png",
+        description: "New Description",
+      });
+    } catch (error) {
+      console.error("Failed to update course:", error);
+    }
+  };
+
+  const deleteCourse = async (courseId: string) => {
+    try {
+      await courseClient.deleteCourse(courseId);
+      setCourses(courses.filter((c) => c._id !== courseId));
+    } catch (error) {
+      console.error("Failed to delete course:", error);
+    }
   };
 
   return (
-    <Provider store={store}>
+    <Session>
       <div id="wd-kanbas" className="d-flex">
         <div className="d-none d-md-block">
           <KanbasNavigation />
@@ -94,6 +130,6 @@ export default function Kanbas() {
           </Routes>
         </div>
       </div>
-    </Provider>
+    </Session>
   );
 }
