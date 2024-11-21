@@ -1,4 +1,5 @@
 // src/Kanbas/index.tsx
+
 import { Provider } from "react-redux";
 import store from "./store";
 import { Routes, Route, Navigate } from "react-router";
@@ -7,12 +8,16 @@ import Dashboard from "./Dashboard";
 import KanbasNavigation from "./Navigation";
 import Courses from "./Courses";
 import ProtectedRoute from "./Account/ProtectedRoute";
-import * as db from "./Database";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import * as userClient from "./Account/client";
+import * as courseClient from "./Courses/client";
+import { CourseType } from "./Courses/types";
 import "./styles.css";
 
 export default function Kanbas() {
-  const [courses, setCourses] = useState<any[]>(db.courses);
+  const [allCourses, setAllCourses] = useState<any[]>([]); // State for all courses
+  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]); // State for enrolled courses
   const [course, setCourse] = useState<any>({
     _id: "0",
     name: "New Course",
@@ -23,37 +28,113 @@ export default function Kanbas() {
     description: "New Description",
   });
 
-  const addNewCourse = () => {
-    const newCourse = { ...course, _id: new Date().getTime().toString() };
-    setCourses((prevCourses) => [...prevCourses, newCourse]);
-    setCourse({
-      _id: "0",
-      name: "New Course",
-      number: "New Number",
-      startDate: "2023-09-10",
-      endDate: "2023-12-15",
-      image: "/images/reactjs.png",
-      description: "New Description",
-    }); // Reset course state after adding
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+
+  /**
+   * Fetches all available courses from the server.
+   */
+  const fetchAllCourses = async () => {
+    try {
+      const courses = await courseClient.fetchAllCourses();
+      setAllCourses(courses);
+    } catch (error) {
+      console.error("Error fetching all courses:", error);
+    }
   };
 
-  const updateCourse = () => {
-    setCourses((prevCourses) =>
-      prevCourses.map((c) => (c._id === course._id ? course : c))
-    );
-    setCourse({
-      _id: "0",
-      name: "New Course",
-      number: "New Number",
-      startDate: "2023-09-10",
-      endDate: "2023-12-15",
-      image: "/images/reactjs.png",
-      description: "New Description",
-    }); // Reset course state after updating
+  /**
+   * Fetches the current user's enrolled courses from the server.
+   */
+  const fetchEnrolledCourses = async () => {
+    try {
+      const courses = await userClient.findMyCourses();
+      setEnrolledCourses(courses);
+    } catch (error) {
+      console.error("Error fetching enrolled courses:", error);
+    }
   };
 
-  const deleteCourse = (courseId: string) => {
-    setCourses((prevCourses) => prevCourses.filter((c) => c._id !== courseId));
+  /**
+   * Fetch both all courses and enrolled courses when the user is logged in.
+   */
+  useEffect(() => {
+    if (currentUser) {
+      fetchAllCourses();
+      fetchEnrolledCourses();
+    } else {
+      setAllCourses([]); // Clear all courses if no user is logged in
+      setEnrolledCourses([]); // Clear enrolled courses
+    }
+  }, [currentUser]);
+
+  /**
+   * Functions to handle CRUD operations via the server.
+   */
+
+  const addNewCourse = async () => {
+    try {
+      const newCourseData = {
+        ...course,
+        _id: "", // Let the server assign the ID
+      };
+  
+      // Create the course on the server
+      const newCourse = await userClient.createCourse(newCourseData);
+  
+      // Append the new course to allCourses
+      setAllCourses((prevCourses) => [...prevCourses, newCourse]);
+  
+      // Optionally refresh enrolledCourses if current user is auto-enrolled
+      await fetchEnrolledCourses();
+  
+      // Reset the course form after creation
+      setCourse({
+        _id: "0",
+        name: "New Course",
+        number: "New Number",
+        startDate: "2023-09-10",
+        endDate: "2023-12-15",
+        image: "/images/reactjs.png",
+        description: "New Description",
+      });
+    } catch (error) {
+      console.error("Error creating course:", error);
+    }
+  };
+
+  const updateCourseHandler = async () => {
+    try {
+      // Update the course on the server
+      await courseClient.updateCourse(course._id, course);
+  
+      // Update the course in the local state
+      setAllCourses((prevCourses: CourseType[]) =>
+        prevCourses.map((c: CourseType) => (c._id === course._id ? course : c))
+      );
+  
+      // Reset the course form after updating
+      setCourse({
+        _id: "0",
+        name: "New Course",
+        number: "New Number",
+        startDate: "2023-09-10",
+        endDate: "2023-12-15",
+        image: "/images/reactjs.png",
+        description: "New Description",
+      });
+    } catch (error) {
+      console.error("Error updating course:", error);
+    }
+  };
+  
+  const deleteCourseHandler = async (courseId: string) => {
+    try {
+      await courseClient.deleteCourse(courseId); // Use courseClient
+      setAllCourses((prevCourses) => prevCourses.filter((c) => c._id !== courseId));
+      setEnrolledCourses((prevEnrolled) => prevEnrolled.filter((c) => c._id !== courseId));
+    } catch (error) {
+      console.error("Error deleting course:", error);
+    }
   };
 
   return (
@@ -71,12 +152,13 @@ export default function Kanbas() {
               element={
                 <ProtectedRoute>
                   <Dashboard
-                    courses={courses}
+                    allCourses={allCourses} // Pass allCourses
+                    enrolledCourses={enrolledCourses} // Pass enrolledCourses
                     course={course}
                     setCourse={setCourse}
                     addNewCourse={addNewCourse}
-                    deleteCourse={deleteCourse}
-                    updateCourse={updateCourse}
+                    deleteCourse={deleteCourseHandler}
+                    updateCourse={updateCourseHandler}
                   />
                 </ProtectedRoute>
               }
@@ -85,7 +167,7 @@ export default function Kanbas() {
               path="/Courses/:cid/*"
               element={
                 <ProtectedRoute>
-                  <Courses courses={courses} />
+                  <Courses courses={allCourses} />
                 </ProtectedRoute>
               }
             />

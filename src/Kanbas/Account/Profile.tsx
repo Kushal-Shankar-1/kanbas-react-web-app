@@ -1,39 +1,77 @@
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { setCurrentUser } from "./reducer";
+import * as client from "./client";
 
 export default function Profile() {
   const [profile, setProfile] = useState<any>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentUser } = useSelector((state: any) => state.accountReducer);
 
-  // Fetch the current user's profile or redirect if not signed in
-  const fetchProfile = () => {
-    if (!currentUser) {
-      navigate("/Kanbas/Account/Signin");
-    } else {
-      setProfile(currentUser);
+  // Fetch profile from the server
+  const fetchProfile = async () => {
+    try {
+      const fetchedProfile = await client.profile();
+      setProfile(fetchedProfile);
+      dispatch(setCurrentUser(fetchedProfile));
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+      setError("Failed to fetch profile. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Sign out function to clear the user and navigate to Signin
-  const signout = () => {
-    dispatch(setCurrentUser(null));
-    navigate("/Kanbas/Account/Signin");
+  // Update profile on the server
+  const updateProfile = async () => {
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const updatedProfile = await client.updateUser(profile);
+      setProfile(updatedProfile);
+      dispatch(setCurrentUser(updatedProfile));
+      setSuccess("Profile updated successfully!");
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      setError("Failed to update profile. Please try again.");
+    }
+  };
+
+  // Sign out and clear the current session
+  const signout = async () => {
+    try {
+      await client.signout(); // Call the client function
+      dispatch(setCurrentUser(null)); // Clear the Redux state
+      navigate("/Kanbas/Account/Signin"); // Navigate to the Signin page
+    } catch (error) {
+      console.error("Error signing out:", error);
+      setError("Failed to sign out. Please try again.");
+    }
   };
 
   useEffect(() => {
     fetchProfile();
   }, []);
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div id="wd-profile-screen" className="container mt-5" style={{ maxWidth: "600px" }}>
       <h3 className="text-center mb-4">Profile</h3>
-      
+      {error && <div className="alert alert-danger">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
       {profile && (
         <>
+          {/* Username */}
           <div className="mb-3">
             <label htmlFor="wd-username" className="form-label fw-bold">Username</label>
             <input
@@ -41,9 +79,11 @@ export default function Profile() {
               value={profile.username || ""}
               onChange={(e) => setProfile({ ...profile, username: e.target.value })}
               className="form-control"
+              disabled
             />
           </div>
 
+          {/* Password */}
           <div className="mb-3">
             <label htmlFor="wd-password" className="form-label fw-bold">Password</label>
             <input
@@ -55,6 +95,7 @@ export default function Profile() {
             />
           </div>
 
+          {/* First Name */}
           <div className="mb-3">
             <label htmlFor="wd-firstname" className="form-label fw-bold">First Name</label>
             <input
@@ -65,6 +106,7 @@ export default function Profile() {
             />
           </div>
 
+          {/* Last Name */}
           <div className="mb-3">
             <label htmlFor="wd-lastname" className="form-label fw-bold">Last Name</label>
             <input
@@ -75,6 +117,7 @@ export default function Profile() {
             />
           </div>
 
+          {/* Date of Birth */}
           <div className="mb-3">
             <label htmlFor="wd-dob" className="form-label fw-bold">Date of Birth</label>
             <input
@@ -86,6 +129,7 @@ export default function Profile() {
             />
           </div>
 
+          {/* Email */}
           <div className="mb-3">
             <label htmlFor="wd-email" className="form-label fw-bold">Email</label>
             <input
@@ -97,6 +141,7 @@ export default function Profile() {
             />
           </div>
 
+          {/* Role */}
           <div className="mb-3">
             <label htmlFor="wd-role" className="form-label fw-bold">Role</label>
             <select
@@ -112,6 +157,16 @@ export default function Profile() {
             </select>
           </div>
 
+          {/* Update Button */}
+          <button
+            onClick={updateProfile}
+            className="btn btn-primary w-100 mb-2"
+            id="wd-update-btn"
+          >
+            Update
+          </button>
+
+          {/* Sign Out Button */}
           <button
             onClick={signout}
             className="btn btn-danger w-100"

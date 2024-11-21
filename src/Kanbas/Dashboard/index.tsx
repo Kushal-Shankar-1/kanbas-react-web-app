@@ -1,19 +1,21 @@
 // src/Kanbas/Dashboard/index.tsx
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import * as db from "../Database";
 import { toggleEnrollment } from "../Account/enrollmentsReducer"; // Import action
 
 export default function Dashboard({
-  courses,
+  allCourses,
+  enrolledCourses,
   course,
   setCourse,
   addNewCourse,
   deleteCourse,
   updateCourse,
 }: {
-  courses: any[];
+  allCourses: any[];
+  enrolledCourses: any[];
   course: any;
   setCourse: (course: any) => void;
   addNewCourse: () => void;
@@ -26,24 +28,39 @@ export default function Dashboard({
 
   const [showAllCourses, setShowAllCourses] = useState(false);
 
-  // Initial enrollments from the Database JSON
-  const initialEnrollments = db.enrollments;
-
-  // Filter courses based on current user's enrollments
-  const isEnrolled = (courseId: string) =>
+  /**
+   * Determines if the current user is enrolled in a specific course.
+   * @param {string} courseId - The ID of the course.
+   * @returns {boolean} True if enrolled, else false.
+   */
+  const isEnrolled = (courseId: string): boolean =>
     enrollmentsFromStore.some(
       (enrollment: { _id: string; user: string; course: string }) =>
         enrollment.user === currentUser?._id && enrollment.course === courseId
-    ) ||
-    initialEnrollments.some(
-      (enrollment: { user: string; course: string }) =>
-        enrollment.user === currentUser?._id && enrollment.course === courseId
     );
 
-  // Conditionally display courses based on the toggle and enrollment status
+  /**
+   * Conditionally display courses based on the toggle.
+   */
   const displayedCourses = showAllCourses
-    ? courses
-    : courses.filter((course) => isEnrolled(course._id));
+    ? allCourses
+    : enrolledCourses;
+
+  /**
+   * Handle Enroll/Unenroll button click.
+   */
+  const handleToggleEnrollment = async (courseId: string) => {
+    try {
+      await dispatch(toggleEnrollment({ courseId, userId: currentUser._id }));
+      // After toggling enrollment, you might want to refetch enrolled courses
+      // or update the enrolledCourses state accordingly.
+      // For simplicity, let's assume toggleEnrollment updates the Redux store correctly,
+      // and enrolledCourses is updated via useEffect in Kanbas/index.tsx.
+      // Alternatively, you can manually update the state here.
+    } catch (error) {
+      console.error("Error toggling enrollment:", error);
+    }
+  };
 
   return (
     <div className="p-4" id="wd-dashboard">
@@ -127,14 +144,7 @@ export default function Dashboard({
                     className={`btn btn-${
                       isEnrolled(course._id) ? "danger" : "success"
                     } btn-sm`}
-                    onClick={() =>
-                      dispatch(
-                        toggleEnrollment({
-                          courseId: course._id,
-                          userId: currentUser._id,
-                        })
-                      )
-                    }
+                    onClick={() => handleToggleEnrollment(course._id)}
                   >
                     {isEnrolled(course._id) ? "Unenroll" : "Enroll"}
                   </button>
