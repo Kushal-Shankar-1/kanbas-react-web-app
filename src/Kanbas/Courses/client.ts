@@ -80,3 +80,19 @@ export const findModulesForCourse = async (courseId: string): Promise<any[]> => 
     throw error;
   }
 };
+
+/**
+ * Creates a new module for a specific course.
+ * @param {string} courseId - The ID of the course.
+ * @param {Object} module - The module object to create.
+ * @returns {Promise<any>} A promise that resolves to the created module.
+ */
+export const createModuleForCourse = async (courseId: string, module: any): Promise<any> => {
+  try {
+    const response = await axios.post(`${COURSES_API}/${courseId}/modules`, module);
+    return response.data;
+  } catch (error) {
+    console.error(`Error creating module for course ${courseId}:`, error);
+    throw error;
+  }
+};

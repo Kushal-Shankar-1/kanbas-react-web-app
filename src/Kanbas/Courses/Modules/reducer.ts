@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { modules as initialModules } from "../../Database";
 
 interface Lesson {
   _id: string;
@@ -22,34 +21,49 @@ interface ModulesState {
 }
 
 const initialState: ModulesState = {
-  modules: initialModules.map((module) => ({
-    ...module,
-    lessons: module.lessons || [], // Ensures lessons is an array if undefined
-  })) as ModuleState[],
+  modules: [], // Initialize as an empty array; data will come from the server
 };
 
 const modulesSlice = createSlice({
   name: "modules",
   initialState,
   reducers: {
-    addModule: (state, action: PayloadAction<{ name: string; course: string }>) => {
-      const newModule: ModuleState = {
-        _id: new Date().getTime().toString(),
-        name: action.payload.name,
-        course: action.payload.course,
-        description: "New module description",
-        lessons: [],
-      };
-      state.modules.push(newModule);
+    /**
+     * Sets the modules for the current course.
+     * This action is typically dispatched after fetching modules from the server.
+     */
+    setModules: (state, action: PayloadAction<ModuleState[]>) => {
+      state.modules = action.payload;
     },
+
+    /**
+     * Adds a new module to the state.
+     * This action is dispatched after creating a module on the server.
+     */
+    addModule: (state, action: PayloadAction<ModuleState>) => {
+      state.modules.push(action.payload);
+    },
+
+    /**
+     * Deletes a module from the state by its ID.
+     * This action assumes the module has already been deleted on the server.
+     */
     deleteModule: (state, action: PayloadAction<string>) => {
       state.modules = state.modules.filter((m) => m._id !== action.payload);
     },
+
+    /**
+     * Marks a module as being edited by toggling its `editing` property.
+     */
     editModule: (state, action: PayloadAction<string>) => {
       state.modules = state.modules.map((m) =>
         m._id === action.payload ? { ...m, editing: true } : m
       );
     },
+
+    /**
+     * Updates a module's data in the state, and stops the editing mode.
+     */
     updateModule: (state, action: PayloadAction<ModuleState>) => {
       state.modules = state.modules.map((m) =>
         m._id === action.payload._id ? { ...action.payload, editing: false } : m
@@ -58,5 +72,6 @@ const modulesSlice = createSlice({
   },
 });
 
-export const { addModule, deleteModule, editModule, updateModule } = modulesSlice.actions;
+export const { setModules, addModule, deleteModule, editModule, updateModule } =
+  modulesSlice.actions;
 export default modulesSlice.reducer;

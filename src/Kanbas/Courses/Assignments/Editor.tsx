@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { addAssignment, updateAssignment } from './reducer';
+import { addAssignment, updateAssignmentAction } from './reducer';
 
 export default function AssignmentEditor() {
   const { cid, aid } = useParams<{ cid: string; aid: string }>();
@@ -26,7 +26,7 @@ export default function AssignmentEditor() {
 
   const handleSave = () => {
     if (existingAssignment) {
-      dispatch(updateAssignment(assignment));
+      dispatch(updateAssignmentAction(assignment));
     } else {
       dispatch(addAssignment({ ...assignment, _id: new Date().getTime().toString() }));
     }

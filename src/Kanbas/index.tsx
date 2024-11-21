@@ -159,6 +159,7 @@ export default function Kanbas() {
                     addNewCourse={addNewCourse}
                     deleteCourse={deleteCourseHandler}
                     updateCourse={updateCourseHandler}
+                    setEnrolledCourses={setEnrolledCourses}
                   />
                 </ProtectedRoute>
               }

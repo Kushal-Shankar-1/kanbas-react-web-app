@@ -8,6 +8,7 @@ const axiosWithCredentials = axios.create({
 export const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER || "http://localhost:4000";
 export const USERS_API = `${REMOTE_SERVER}/api/users`;
 export const COURSES_API = `${REMOTE_SERVER}/api/courses`;
+export const ENROLLMENTS_API = `${REMOTE_SERVER}/api/enrollments`;
 
 // Existing functions
 export const signin = async (credentials: any) => {
@@ -86,5 +87,26 @@ export const updateCourse = async (courseId: string, course: CourseType): Promis
  */
 export const findModulesForCourse = async (courseId: string): Promise<any[]> => {
   const response = await axios.get(`${COURSES_API}/${courseId}/modules`);
+  return response.data;
+};
+
+/**
+ * Enroll a user in a course.
+ * @param {Object} enrollment - The enrollment object containing userId and courseId.
+ * @returns {Promise<Object>} The created enrollment.
+ */
+export const enrollUser = async (data: { courseId: string; userId: string }) => {
+  console.log("Payload sent to enrollUser:", data); // Debugging
+  const response = await axios.post(`${ENROLLMENTS_API}`, data);
+  return response.data;
+};
+
+/**
+ * Unenroll a user from a course.
+ * @param {Object} unenrollment - The unenrollment object containing userId and courseId.
+ * @returns {Promise<Object>} The removed enrollment.
+ */
+export const unenrollUser = async (unenrollment: { userId: string; courseId: string }) => {
+  const response = await axios.delete(ENROLLMENTS_API, { data: unenrollment });
   return response.data;
 };

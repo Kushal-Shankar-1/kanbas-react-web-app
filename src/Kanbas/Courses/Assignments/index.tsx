@@ -1,30 +1,132 @@
-import React from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { deleteAssignment } from './reducer';
-import AssignmentsControls from './AssignmentsControls';
-import LessonControlButtons from '../Modules/LessonControlButtons';
-import { BsGripVertical } from 'react-icons/bs';
-import { Assignment } from './reducer';
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { findAssignmentsForCourse, createAssignment, updateAssignment, deleteAssignment } from "./client";
+import { setAssignments, addAssignment, updateAssignmentAction, deleteAssignmentAction } from "./reducer";
+import AssignmentsControls from "./AssignmentsControls";
+import LessonControlButtons from "../Modules/LessonControlButtons";
+import { BsGripVertical } from "react-icons/bs";
+import { Assignment } from "./reducer";
 
 export default function Assignments() {
   const { cid } = useParams<{ cid: string }>();
+  const [assignmentName, setAssignmentName] = useState("");
+  const [points, setPoints] = useState(100);
+  const [dueDate, setDueDate] = useState("2024-12-31");
+  const [availableFrom, setAvailableFrom] = useState("2024-11-01");
+  const [availableUntil, setAvailableUntil] = useState("2024-12-31");
+  const [editedAssignment, setEditedAssignment] = useState<Assignment | null>(null);
   const assignments = useSelector((state: any) => state.assignmentsReducer.assignments);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const dispatch = useDispatch();
-  const courseAssignments = assignments.filter((a: Assignment) => a.course === cid);
 
-  const handleDelete = (assignmentId: string) => {
+  // Fetch assignments when the component is mounted
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      if (!cid) return;
+      try {
+        const data = await findAssignmentsForCourse(cid); // Fetch by courseId
+        dispatch(setAssignments(data));
+      } catch (error) {
+        console.error(`Error fetching assignments for course ${cid}:`, error);
+      }
+    };
+
+    fetchAssignments();
+  }, [cid, dispatch]);
+
+  const handleCreate = async () => {
+    if (!cid || !assignmentName.trim()) return;
+    const newAssignment = {
+      title: assignmentName,
+      description: "New Assignment",
+      course: cid,
+      points,
+      dueDate,
+      availableFrom,
+      availableUntil,
+    };
+    try {
+      const created = await createAssignment(cid, newAssignment);
+      dispatch(addAssignment(created));
+      setAssignmentName("");
+      setPoints(100); // Reset default values
+      setDueDate("2024-12-31");
+      setAvailableFrom("2024-11-01");
+      setAvailableUntil("2024-12-31");
+    } catch (error) {
+      console.error("Error creating assignment:", error);
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!editedAssignment) return;
+    try {
+      const updated = await updateAssignment(editedAssignment);
+      dispatch(updateAssignmentAction(updated));
+      setEditedAssignment(null); // Clear edit mode
+    } catch (error) {
+      console.error("Error updating assignment:", error);
+    }
+  };
+
+  const handleDelete = async (assignmentId: string) => {
     if (window.confirm("Are you sure you want to delete this assignment?")) {
-      dispatch(deleteAssignment(assignmentId));
+      try {
+        await deleteAssignment(assignmentId);
+        dispatch(deleteAssignmentAction(assignmentId));
+      } catch (error) {
+        console.error("Error deleting assignment:", error);
+      }
     }
   };
 
   return (
     <div id="wd-assignments" className="p-3">
       {/* Display AssignmentsControls only for FACULTY users */}
-      {currentUser?.role === "FACULTY" && <AssignmentsControls />}
-      <br /><br />
+      {currentUser?.role === "FACULTY" && (
+        <>
+          <AssignmentsControls />
+          <div className="mt-3">
+            <input
+              className="form-control"
+              value={assignmentName}
+              onChange={(e) => setAssignmentName(e.target.value)}
+              placeholder="Enter assignment name"
+            />
+            <input
+              className="form-control mt-2"
+              type="number"
+              value={points}
+              onChange={(e) => setPoints(+e.target.value)}
+              placeholder="Points"
+            />
+            <input
+              className="form-control mt-2"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
+            <input
+              className="form-control mt-2"
+              type="date"
+              value={availableFrom}
+              onChange={(e) => setAvailableFrom(e.target.value)}
+            />
+            <input
+              className="form-control mt-2"
+              type="date"
+              value={availableUntil}
+              onChange={(e) => setAvailableUntil(e.target.value)}
+            />
+            <button className="btn btn-primary mt-2" onClick={handleCreate}>
+              Create Assignment
+            </button>
+          </div>
+        </>
+      )}
+
+      <br />
 
       <ul id="wd-assignments-title" className="list-group rounded-0">
         <li className="wd-assignment-list-group-item p-0 mb-5 fs-5 border-gray">
@@ -35,7 +137,7 @@ export default function Assignments() {
 
           {/* List of Assignments */}
           <ul className="wd-lessons list-group rounded-0">
-            {courseAssignments.map((assignment: Assignment) => (
+            {assignments.map((assignment: Assignment) => (
               <li
                 key={assignment._id}
                 className="wd-lesson list-group-item p-3 d-flex justify-content-between align-items-center"
@@ -43,27 +145,42 @@ export default function Assignments() {
                 <div className="d-flex align-items-start">
                   <BsGripVertical className="fs-4 me-3" />
                   <div>
-                    <Link
-                      className="wd-assignment-link text-decoration-none fw-bold"
-                      to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
-                    >
-                      {assignment.title}
-                    </Link>
-                    <div className="wd-assignment-description mt-1">
-                      <strong>Due:</strong> {assignment.dueDate || 'TBD'} | <strong>Points:</strong> {assignment.points || 100} pts
-                    </div>
+                    {editedAssignment?._id === assignment._id ? (
+                      <input
+                        className="form-control"
+                        value={editedAssignment.title}
+                        onChange={(e) =>
+                          setEditedAssignment({ ...editedAssignment, title: e.target.value })
+                        }
+                        onBlur={handleUpdate}
+                        onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
+                      />
+                    ) : (
+                      <>
+                        <Link
+                          className="wd-assignment-link text-decoration-none fw-bold"
+                          to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
+                        >
+                          {assignment.title}
+                        </Link>
+                        <div className="wd-assignment-description mt-1">
+                          <strong>Due:</strong> {assignment.dueDate || "TBD"} |{" "}
+                          <strong>Points:</strong> {assignment.points || 100} pts
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 {/* Show edit/delete buttons only for FACULTY users */}
                 {currentUser?.role === "FACULTY" && (
                   <div className="d-flex align-items-center">
-                    <Link
-                      to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
+                    <button
+                      onClick={() => setEditedAssignment(assignment)}
                       className="btn btn-sm btn-warning me-3"
                     >
                       Edit
-                    </Link>
+                    </button>
                     <button
                       onClick={() => handleDelete(assignment._id)}
                       className="btn btn-sm btn-danger me-3"

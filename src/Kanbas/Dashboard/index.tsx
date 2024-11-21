@@ -3,7 +3,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { toggleEnrollment } from "../Account/enrollmentsReducer"; // Import action
+import { toggleEnrollment } from "../Account/enrollmentsReducer";
+import { enrollUser, unenrollUser } from "../Account/client";
+import * as userClient from "../Account/client";
+
 
 export default function Dashboard({
   allCourses,
@@ -13,6 +16,7 @@ export default function Dashboard({
   addNewCourse,
   deleteCourse,
   updateCourse,
+  setEnrolledCourses,
 }: {
   allCourses: any[];
   enrolledCourses: any[];
@@ -21,6 +25,7 @@ export default function Dashboard({
   addNewCourse: () => void;
   deleteCourse: (courseId: string) => void;
   updateCourse: () => void;
+  setEnrolledCourses: (courses: any[]) => void;
 }) {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const enrollmentsFromStore = useSelector((state: any) => state.enrollmentsReducer);
@@ -49,16 +54,26 @@ export default function Dashboard({
   /**
    * Handle Enroll/Unenroll button click.
    */
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+
   const handleToggleEnrollment = async (courseId: string) => {
     try {
-      await dispatch(toggleEnrollment({ courseId, userId: currentUser._id }));
-      // After toggling enrollment, you might want to refetch enrolled courses
-      // or update the enrolledCourses state accordingly.
-      // For simplicity, let's assume toggleEnrollment updates the Redux store correctly,
-      // and enrolledCourses is updated via useEffect in Kanbas/index.tsx.
-      // Alternatively, you can manually update the state here.
+      if (isEnrolled(courseId)) {
+        await unenrollUser({ courseId, userId: currentUser._id });
+        dispatch(toggleEnrollment({ courseId, userId: currentUser._id }));
+        setFeedbackMessage("Successfully unenrolled!");
+      } else {
+        await enrollUser({ courseId, userId: currentUser._id });
+        dispatch(toggleEnrollment({ courseId, userId: currentUser._id }));
+        setFeedbackMessage("Successfully enrolled!");
+      }
+  
+      // Fetch updated enrolled courses after toggling enrollment
+      const updatedEnrolledCourses = await userClient.findMyCourses();
+      setEnrolledCourses(updatedEnrolledCourses); // Use the passed prop
     } catch (error) {
       console.error("Error toggling enrollment:", error);
+      setFeedbackMessage("An error occurred.");
     }
   };
 
