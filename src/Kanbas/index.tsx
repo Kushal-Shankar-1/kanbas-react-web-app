@@ -107,12 +107,15 @@ export default function Kanbas() {
       // Update the course on the server
       await courseClient.updateCourse(course._id, course);
   
-      // Update the course in the local state
-      setAllCourses((prevCourses: CourseType[]) =>
-        prevCourses.map((c: CourseType) => (c._id === course._id ? course : c))
-      );
+      // Fetch the updated list of all courses
+      const updatedAllCourses = await courseClient.fetchAllCourses();
+      setAllCourses(updatedAllCourses);
   
-      // Reset the course form after updating
+      // Fetch the updated enrolled courses for the current user
+      const updatedEnrolledCourses = await userClient.findMyCourses();
+      setEnrolledCourses(updatedEnrolledCourses);
+  
+      // Reset the course form
       setCourse({
         _id: "0",
         name: "New Course",

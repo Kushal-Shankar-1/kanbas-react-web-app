@@ -30,7 +30,7 @@ export default function Signin() {
     } catch (err) {
       // Handle API errors
       console.error("Sign-in error:", err);
-      setError("Something went wrong. Please try again.");
+      setError("Invalid username or password.");
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { setCurrentUser } from "./reducer";
 import * as client from "./client";
 
@@ -12,14 +12,21 @@ export default function Profile() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser } = useSelector((state: any) => state.accountReducer);
 
-  // Fetch profile from the server
+  /**
+   * Fetches the latest profile from the server and syncs with Redux.
+   */
   const fetchProfile = async () => {
     try {
       const fetchedProfile = await client.profile();
       setProfile(fetchedProfile);
-      dispatch(setCurrentUser(fetchedProfile));
+
+      // Update Redux store if fetched data differs from Redux state
+      if (JSON.stringify(currentUser) !== JSON.stringify(fetchedProfile)) {
+        dispatch(setCurrentUser(fetchedProfile));
+      }
     } catch (err) {
       console.error("Error fetching profile:", err);
       setError("Failed to fetch profile. Please try again.");
@@ -28,37 +35,46 @@ export default function Profile() {
     }
   };
 
-  // Update profile on the server
+  /**
+   * Updates the user's profile on the server.
+   */
   const updateProfile = async () => {
     setError(null);
     setSuccess(null);
 
     try {
       const updatedProfile = await client.updateUser(profile);
-      setProfile(updatedProfile);
-      dispatch(setCurrentUser(updatedProfile));
-      setSuccess("Profile updated successfully!");
+      setProfile(updatedProfile); // Update local state
+      dispatch(setCurrentUser(updatedProfile)); // Update Redux state
+      setSuccess("Profile updated successfully! Relogin to see the changes");
     } catch (err) {
       console.error("Error updating profile:", err);
       setError("Failed to update profile. Please try again.");
     }
   };
 
-  // Sign out and clear the current session
+  /**
+   * Signs the user out by clearing the session and Redux state.
+   */
   const signout = async () => {
     try {
-      await client.signout(); // Call the client function
-      dispatch(setCurrentUser(null)); // Clear the Redux state
-      navigate("/Kanbas/Account/Signin"); // Navigate to the Signin page
+      await client.signout();
+      dispatch(setCurrentUser(null));
+      navigate("/Kanbas/Account/Signin");
     } catch (error) {
       console.error("Error signing out:", error);
       setError("Failed to sign out. Please try again.");
     }
   };
 
+  /**
+   * Fetch the profile data when the component mounts.
+   */
   useEffect(() => {
+    if (location.pathname === "/Kanbas/Account/Profile") {
     fetchProfile();
-  }, []);
+    }
+  }, [location]);
 
   if (loading) {
     return <div>Loading...</div>;

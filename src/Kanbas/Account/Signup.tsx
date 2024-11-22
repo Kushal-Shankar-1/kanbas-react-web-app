@@ -16,16 +16,18 @@ export default function Signup() {
       setError("All fields are required.");
       return;
     }
-
+  
     if (user.password !== user.verifyPassword) {
       setError("Passwords do not match.");
       return;
     }
-
+  
     try {
-      const currentUser = await client.signup({ username: user.username, password: user.password });
-      dispatch(setCurrentUser(currentUser));
-      navigate("/Kanbas/Account/Profile");
+      // Create the new user
+      await client.signup({ username: user.username, password: user.password });
+  
+      // Redirect to the Sign In page
+      navigate("/Kanbas/Account/Signin");
     } catch (err: any) {
       if (err.response?.status === 400) {
         setError(err.response.data.message); // Display "Username already in use"

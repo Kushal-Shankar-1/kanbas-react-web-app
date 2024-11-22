@@ -39,10 +39,7 @@ export default function Dashboard({
    * @returns {boolean} True if enrolled, else false.
    */
   const isEnrolled = (courseId: string): boolean =>
-    enrollmentsFromStore.some(
-      (enrollment: { _id: string; user: string; course: string }) =>
-        enrollment.user === currentUser?._id && enrollment.course === courseId
-    );
+    enrolledCourses.some((course) => course._id === courseId);
 
   /**
    * Conditionally display courses based on the toggle.
