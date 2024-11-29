@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { findAssignmentsForCourse, createAssignment, updateAssignment, deleteAssignment } from "./client";
-import { setAssignments, addAssignment, updateAssignmentAction, deleteAssignmentAction } from "./reducer";
+import {
+  findAssignmentsForCourse,
+  createAssignment,
+  updateAssignment,
+  deleteAssignment,
+} from "./client";
+import {
+  setAssignments,
+  addAssignment,
+  updateAssignmentAction,
+  deleteAssignmentAction,
+} from "./reducer";
 import AssignmentsControls from "./AssignmentsControls";
 import LessonControlButtons from "../Modules/LessonControlButtons";
 import { BsGripVertical } from "react-icons/bs";
@@ -61,12 +71,20 @@ export default function Assignments() {
 
   const handleUpdate = async () => {
     if (!editedAssignment) return;
+
     try {
-      const updated = await updateAssignment(editedAssignment);
-      dispatch(updateAssignmentAction(updated));
+      const updated = await updateAssignment(editedAssignment); // Update on server
+      dispatch(updateAssignmentAction(updated)); // Update in Redux store
       setEditedAssignment(null); // Clear edit mode
     } catch (error) {
       console.error("Error updating assignment:", error);
+    }
+  };
+
+  // Utility function to edit individual fields
+  const editField = (field: keyof Assignment, value: any) => {
+    if (editedAssignment) {
+      setEditedAssignment({ ...editedAssignment, [field]: value } as Assignment);
     }
   };
 
@@ -146,15 +164,39 @@ export default function Assignments() {
                   <BsGripVertical className="fs-4 me-3" />
                   <div>
                     {editedAssignment?._id === assignment._id ? (
-                      <input
-                        className="form-control"
-                        value={editedAssignment.title}
-                        onChange={(e) =>
-                          setEditedAssignment({ ...editedAssignment, title: e.target.value })
-                        }
-                        onBlur={handleUpdate}
-                        onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
-                      />
+                      <>
+                        <input
+                          className="form-control"
+                          value={editedAssignment.title}
+                          onChange={(e) => editField("title", e.target.value)}
+                        />
+                        <textarea
+                          className="form-control mt-2"
+                          value={editedAssignment.description}
+                          onChange={(e) => editField("description", e.target.value)}
+                        />
+                        <input
+                          className="form-control mt-2"
+                          type="number"
+                          value={editedAssignment.points}
+                          onChange={(e) => editField("points", +e.target.value)}
+                        />
+                        <input
+                          className="form-control mt-2"
+                          type="date"
+                          value={editedAssignment.dueDate}
+                          onChange={(e) => editField("dueDate", e.target.value)}
+                        />
+                        <input
+                          className="form-control mt-2"
+                          type="date"
+                          value={editedAssignment.availableFrom}
+                          onChange={(e) => editField("availableFrom", e.target.value)}
+                        />
+                        <button className="btn btn-primary mt-2" onClick={handleUpdate}>
+                          Save
+                        </button>
+                      </>
                     ) : (
                       <>
                         <Link
@@ -164,8 +206,10 @@ export default function Assignments() {
                           {assignment.title}
                         </Link>
                         <div className="wd-assignment-description mt-1">
-                          <strong>Due:</strong> {assignment.dueDate || "TBD"} |{" "}
-                          <strong>Points:</strong> {assignment.points || 100} pts
+                          <strong>Description:</strong> {assignment.description} <br />
+                          <strong>Points:</strong> {assignment.points} pts <br />
+                          <strong>Due:</strong> {assignment.dueDate || "TBD"} <br />
+                          <strong>Available From:</strong> {assignment.availableFrom || "TBD"}
                         </div>
                       </>
                     )}

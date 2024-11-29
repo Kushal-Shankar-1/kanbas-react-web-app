@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Assignment } from "./reducer";
 
 const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER || "http://localhost:4000";
 const ASSIGNMENTS_API = `${REMOTE_SERVER}/api/assignments`;
@@ -39,12 +40,25 @@ export const createAssignment = async (courseId: string, assignment: {
 
 /**
  * Update an assignment.
- * @param {any} assignment - Assignment details.
- * @returns {Promise<any>} The updated assignment.
+ * @param {Assignment} assignment - The updated assignment data.
+ * @returns {Promise<Assignment>} The updated assignment.
  */
-export const updateAssignment = async (assignment: any): Promise<any> => {
-  const response = await axios.put(`${ASSIGNMENTS_API}/${assignment._id}`, assignment);
-  return response.data;
+export const updateAssignment = async (assignment: {
+  _id: string;
+  title: string;
+  description: string;
+  points: number;
+  dueDate: string;
+  availableFrom: string; // Updated field name
+  availableUntil: string; // Ensure this matches the type
+}): Promise<Assignment> => {
+  try {
+    const response = await axios.put(`${ASSIGNMENTS_API}/${assignment._id}`, assignment);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating assignment:", error);
+    throw error;
+  }
 };
 
 /**

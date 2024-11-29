@@ -8,7 +8,7 @@ export type Assignment = {
   description: string;
   points: number;
   dueDate: string;
-  availableDate: string;
+  availableFrom: string;
   availableUntil: string;
   course: string;
 };

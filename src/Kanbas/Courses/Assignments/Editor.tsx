@@ -28,17 +28,16 @@ export default function AssignmentEditor() {
   const handleSave = async () => {
     try {
       if (existingAssignment) {
-        // Update existing assignment
+        // Update an existing assignment
         const updatedAssignment = await updateAssignment(assignment);
         dispatch(updateAssignmentAction(updatedAssignment));
       } else {
-        // Create a new assignment on the server
+        // Create a new assignment
         const newAssignment = await createAssignment(cid!, assignment);
         dispatch(addAssignment(newAssignment));
       }
   
-      // Navigate back to the Assignments page after saving
-      navigate(`/Kanbas/Courses/${cid}/Assignments`);
+      navigate(`/Kanbas/Courses/${cid}/Assignments`); // Navigate back
     } catch (error) {
       console.error("Error saving assignment:", error);
       alert("An error occurred while saving the assignment. Please try again.");
