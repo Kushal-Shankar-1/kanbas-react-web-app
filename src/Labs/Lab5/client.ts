@@ -21,6 +21,17 @@ export const updateTitle = async (title: string) => {
   return response.data;
 };
 
+// Generic update field function
+export const updateField = async (id: number, updatedFields: Record<string, any>) => {
+  try {
+    const response = await axios.put(`${ASSIGNMENT_API}/${id}`, updatedFields);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating field:", error);
+    throw error;
+  }
+};
+
 // Todos API endpoints
 const TODOS_API = `${REMOTE_SERVER}/lab5/todos`;
 
