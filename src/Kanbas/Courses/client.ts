@@ -96,3 +96,18 @@ export const createModuleForCourse = async (courseId: string, module: any): Prom
     throw error;
   }
 };
+
+export const findUsersForCourse = async (courseId: string): Promise<any[]> => {
+  try {
+    const response = await axios.get(`${COURSES_API}/${courseId}/users`);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      console.error("Error fetching users for course:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to fetch users for course.");
+    } else {
+      console.error("Unexpected error:", error);
+      throw new Error("An unexpected error occurred.");
+    }
+  }
+};
