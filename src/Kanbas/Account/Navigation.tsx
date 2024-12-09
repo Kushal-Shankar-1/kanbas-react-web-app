@@ -2,24 +2,32 @@ import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 export default function AccountNavigation() {
-  const { currentUser } = useSelector((state: any) => state.accountReducer); // Get currentUser from Redux store
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
   const { pathname } = useLocation();
 
-  // Show "Signin" and "Signup" if not signed in, otherwise show "Profile"
   const links = currentUser ? ["Profile"] : ["Signin", "Signup"];
 
+  const active = (path: string) => (pathname.includes(path) ? "active-link" : "");
+
   return (
-    <div id="wd-account-navigation">
+    <div id="wd-account-navigation" className="list-group">
       {links.map((link) => (
-        <div key={link}>
-          <Link
-            to={`/Kanbas/Account/${link}`}
-            className={pathname.includes(link) ? "active-link" : ""}
-          >
-            {link}
-          </Link>
-        </div>
+        <Link
+          key={link}
+          to={`/Kanbas/Account/${link}`}
+          className={`list-group-item ${active(link)}`}
+        >
+          {link}
+        </Link>
       ))}
+      {currentUser && currentUser.role === "ADMIN" && (
+        <Link
+          to="/Kanbas/Account/Users"
+          className={`list-group-item ${active("Users")}`}
+        >
+          Users
+        </Link>
+      )}
     </div>
   );
 }

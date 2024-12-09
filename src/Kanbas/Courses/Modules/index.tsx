@@ -57,9 +57,22 @@ export default function Modules() {
     dispatch(editModule(moduleId));
   };
 
-  const handleSaveModule = (module: any) => {
-    dispatch(updateModule({ ...module, name: editedName, editing: false, lessons: module.lessons || [] }));
-    setEditedName("");
+  const handleSaveModule = async (module: any) => {
+    // First, update on the server
+    try {
+      const updatedModuleData = { ...module, name: editedName, editing: false, lessons: module.lessons || [] };
+  
+      // Call the client function that sends PUT /api/modules/:moduleId
+      await modulesClient.updateModule(updatedModuleData);
+  
+      // Now dispatch to Redux to update frontend state
+      dispatch(updateModule(updatedModuleData));
+  
+      setEditedName("");
+    } catch (error) {
+      console.error(`Error saving module ${module._id}:`, error);
+      // Optionally show an error message to the user
+    }
   };
 
   return (

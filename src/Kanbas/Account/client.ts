@@ -110,3 +110,70 @@ export const unenrollUser = async (unenrollment: { userId: string; courseId: str
   const response = await axios.delete(ENROLLMENTS_API, { data: unenrollment });
   return response.data;
 };
+
+export const findAllUsers = async () => {
+  const response = await axiosWithCredentials.get(USERS_API);
+  return response.data;
+};
+
+/**
+ * Fetches users filtered by role.
+ * @param {String} role - The role to filter users by.
+ * @returns {Promise} - The filtered users.
+ */
+export const findUsersByRole = async (role: string) => {
+  const response = await axiosWithCredentials.get(`${USERS_API}?role=${role}`);
+  console.log("API Response for Role:", response.data); // Debugging
+  return response.data;
+};
+
+
+/**
+ * Fetches users filtered by partial name match.
+ * @param {String} name - The partial name to filter users by.
+ * @returns {Promise} - The filtered users.
+ */
+export const findUsersByPartialName = async (name: string) => {
+  const response = await axiosWithCredentials.get(`${USERS_API}?name=${name}`);
+  return response.data;
+};
+
+/**
+ * Fetch a user by ID.
+ * @param {string} id - The user ID to retrieve.
+ * @returns {Promise<any>} - The user data.
+ */
+export const findUserById = async (id: string) => {
+  try {
+    const response = await axiosWithCredentials.get(`${USERS_API}/${id}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Error fetching user by ID:", error.response?.data || error.message);
+      throw error;
+    } else {
+      console.error("Unexpected error fetching user by ID:", error);
+      throw new Error("An unexpected error occurred");
+    }
+  }
+};
+
+/**
+ * Deletes a user by their ID.
+ * @param {string} userId - The ID of the user to delete.
+ * @returns {Promise<any>} - The server's response.
+ */
+export const deleteUser = async (userId: string) => {
+  try {
+    const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error deleting user:", error.message);
+    throw new Error("Failed to delete user.");
+  }
+};
+
+export const createUser = async (user: any) => {
+  const response = await axios.post(`${USERS_API}`, user); // API call
+  return response.data; // Return the created user
+};
