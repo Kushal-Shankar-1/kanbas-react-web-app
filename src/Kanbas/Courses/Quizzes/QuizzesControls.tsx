@@ -1,0 +1,29 @@
+// Quizzes/QuizzesControls.tsx
+import { FaPlus } from "react-icons/fa6";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+export default function QuizzesControls({ qid, cid }: { qid: any; cid: any }) {
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  return (
+    <div className="wd-grades-controls text-nowrap padding ms-5 me-5">
+      {currentUser.role === "FACULTY" ? (
+        <span>
+          <Link
+            id="wd-add-quiz-button"
+            to={`/Kanbas/Courses/${cid}/Quizzes/add`}
+            className="btn btn-lg btn-danger me-1 float-end"
+          >
+            <FaPlus className="position-relative me-2" style={{ bottom: "1px" }} />
+            Quiz
+          </Link>
+        </span>
+      ) : (
+        ""
+      )}
+      <input className="form-control w-25 form-control-lg" placeholder="Search for Quiz" />
+      <br />
+      <hr />
+    </div>
+  );
+}
